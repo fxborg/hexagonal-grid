@@ -4,8 +4,8 @@
 
 namespace hex {
 	/**
-	 * Hexagon class
-	 */
+	* Hexagon class
+	*/
 	class Hexagon
 	{
 	public:
@@ -16,7 +16,7 @@ namespace hex {
 
 		// copy constructor
 		Hexagon(const Hexagon& hex) : q_(hex.q()), r_(hex.r()), s_(hex.s()) {}
-	
+
 		//--- operators ---
 		// = operator
 		Hexagon& operator = (const Hexagon& hex)
@@ -32,33 +32,47 @@ namespace hex {
 		}
 		// equal operator
 		bool operator==(const Hexagon& hex) const
-			{ return q() == hex.q() && r() == hex.r() && s() == hex.s();}
+		{
+			return q() == hex.q() && r() == hex.r() && s() == hex.s();
+		}
 		// not equal operator
-		bool operator!=(const Hexagon& hex) const	{return !(*this == hex);}
+		bool operator!=(const Hexagon& hex) const { return !(*this == hex); }
 
 		// greater operator
 		bool operator<(const Hexagon& hex) const
-			{ return (abs(q()) + abs(r()) + abs(s())) < (abs(hex.q()) + abs(hex.r()) + abs(hex.s()));}
+		{
+			return (abs(q()) + abs(r()) + abs(s())) < (abs(hex.q()) + abs(hex.r()) + abs(hex.s()));
+		}
 
 		// less operator
 		bool operator>(const Hexagon& hex) const
-			{ return (abs(q()) + abs(r()) + abs(s())) > (abs(hex.q()) + abs(hex.r()) + abs(hex.s()));}
+		{
+			return (abs(q()) + abs(r()) + abs(s())) > (abs(hex.q()) + abs(hex.r()) + abs(hex.s()));
+		}
 
 		// add operator
 		friend Hexagon operator+(const Hexagon& hex0, const Hexagon& hex1)
-			{ return Hexagon(hex0.q() + hex1.q(), hex0.r() + hex1.r(), hex0.s() + hex1.s());}
+		{
+			return Hexagon(hex0.q() + hex1.q(), hex0.r() + hex1.r(), hex0.s() + hex1.s());
+		}
 
 		// subtract operator
 		friend Hexagon operator-(const Hexagon& hex0, const Hexagon& hex1)
-			{ return Hexagon(hex0.q() - hex1.q(), hex0.r() - hex1.r(), hex0.s() - hex1.s());}
+		{
+			return Hexagon(hex0.q() - hex1.q(), hex0.r() - hex1.r(), hex0.s() - hex1.s());
+		}
 
 		// multiplication( hex * n )
 		friend Hexagon operator*(const Hexagon& hex, const double& n)
-			{ return Hexagon((hex.q() * n), (hex.r() * n), (hex.s() * n));}
+		{
+			return Hexagon((hex.q() * n), (hex.r() * n), (hex.s() * n));
+		}
 
 		// multiplication( n * hex ) 
 		friend Hexagon operator*(const double& n, const Hexagon& hex)
-			{ return Hexagon((hex.q() * n), (hex.r() * n), (hex.s() * n));}
+		{
+			return Hexagon((hex.q() * n), (hex.r() * n), (hex.s() * n));
+		}
 
 		// --- members  ---
 		double& q() { return q_; }

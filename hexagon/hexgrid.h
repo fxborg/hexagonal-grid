@@ -1,12 +1,14 @@
-#define _USE_MATH_DEFINES
+﻿#define _USE_MATH_DEFINES
 #include <cmath>
 #include <vector>
-#include "ordered_map.h"
+#include <unordered_map>
 #include "hexagon.h"
 
+
 using std::abs;
-using std::max;
+using std::ceil;
 using std::vector;
+using std::unordered_map;
 using hex::Hexagon;
 
 namespace hex {
@@ -50,6 +52,7 @@ namespace hex {
 		OffsetCoord(int col_, int row_) : col(col_), row(row_) {}
 	};
 
+
 	class HexGrid
 	{
 	public:
@@ -61,9 +64,9 @@ namespace hex {
 			return ((abs(hex.q()) + abs(hex.r()) + abs(hex.s())) / 2.0);
 		}
 
-		double distance(Hexagon a, Hexagon b)
+		double hex_distance(Hexagon a, Hexagon b)
 		{
-			return hex_length(a-b);
+			return hex_length(a - b);
 		}
 		Hexagon round_hex(double frac_q, double frac_r, double frac_s)
 		{
@@ -105,11 +108,11 @@ namespace hex {
 			const Orientation M{ m_orientation };
 			double q = double(M.b0 * pt.x + M.b1 * pt.y);
 			double r = double(M.b2 * pt.x + M.b3 * pt.y);
-			return Hexagon(q, r, -q-r);
+			return Hexagon(q, r, -q - r);
 
 		}
 
-		
+
 		void add_point(const Hexagon & hex, const Point & pt)
 		{
 			auto it = m_hexagon_map.find(hex);
@@ -124,20 +127,60 @@ namespace hex {
 
 		vector<Point> & get_points(const Hexagon & hex)
 		{
-			auto it =  m_hexagon_map.find(hex);
+			auto it = m_hexagon_map.find(hex);
 			if (it != m_hexagon_map.end()) {
 				return (static_cast<vector<Point>>(it->second));
 			}
 			return vector<Point>{};
 		}
-		
-		tsl::ordered_map<Hexagon, vector<Point>, hash > & get_hexagon_map()
-		{
-			return m_hexagon_map;
+
+		/**
+		 * 円環状にセルを移動しながら点群が存在する座標を調べます。
+		 */
+		vector<Hexagon> walk_on_ring(const Hexagon & center, int step) {
+			// グリッド座標をセットする
+			vector<Hexagon> results{};
+
+			// ４の方角に移動する。
+			Hexagon hex = center + (m_hex_directions[4] * (double)step);
+			// 点群が存在するか確認
+			if (m_hexagon_map.find(hex) != m_hexagon_map.end()) {
+				results.push_back(hex);
+			}
+			// ６回方向を変える
+			for (int i = 0; i < 6; i++) {
+				// 円の大きさ分直進する
+				for (int j = 0; j < step; j++) {
+					hex = m_hex_directions[i] + hex;
+					// 点群が存在するか確認
+					if (m_hexagon_map.find(hex) != m_hexagon_map.end()) {
+						results.push_back(hex);
+					}
+				}
+			}
+			return results;
 		}
 
-
-		
+		/**
+		 * 近傍点を探索します。
+		 */
+		unordered_map<int, vector<Hexagon>> neighbors(const Hexagon & center, double distance) {
+			// 点群が存在するグリッド座標を格納する
+			unordered_map<int,vector<Hexagon>> results{};
+			// 原点のセルに点群が存在するかを確認
+			if (m_hexagon_map.find(center) != m_hexagon_map.end()) {
+				results[0] = { center };
+			}
+			// グリッド間の距離の計算
+			double grid_size = (2 * m_radius* sqrt(3));
+			// 探索対象範囲の上限
+			int limit = int(ceil(distance/grid_size))+1;
+			// １つ離れたセルから同心円状に探索対象範囲を移動します。
+			for (int i = 1; i <= limit; i++) {
+				results[i]= walk_on_ring(center, i);
+			}
+			return results;
+		}
 
 	private:
 
@@ -154,13 +197,21 @@ namespace hex {
 
 		}
 
+
 		const double m_radius;
 		const Orientation m_orientation;
-		tsl::ordered_map< Hexagon, vector<Point>, hash > m_hexagon_map;
-
+		unordered_map< Hexagon, vector<Point>, hash > m_hexagon_map;
+		// ６方向へ移動する為の座標
+		const std::vector<Hexagon> m_hex_directions = {
+			Hexagon(1, 0, -1),	// 北東
+			Hexagon(1, -1, 0),	// 南東
+			Hexagon(0, -1, 1),	// 南
+			Hexagon(-1, 0, 1),	// 南西
+			Hexagon(-1, 1, 0),	// 北西
+			Hexagon(0, 1, -1)	// 北
+		};
 	};
 }
-
 
 
 
