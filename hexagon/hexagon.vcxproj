@@ -141,8 +141,6 @@
   <ItemGroup>
     <ClInclude Include="Hexagon.h" />
     <ClInclude Include="hexgrid.h" />
-    <ClInclude Include="ordered_hash.h" />
-    <ClInclude Include="ordered_map.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tests.cpp" />
